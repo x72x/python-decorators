@@ -10,8 +10,9 @@ class AsyncEvents:
         self.time = datetime.now()
         try:
             loop = asyncio.get_event_loop()
-        except:
+        except RuntimeError:
             loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
         
         self.loop = loop
     
@@ -29,30 +30,27 @@ class AsyncEvents:
     async def process_event(self):
         while True:
             time = datetime.now()
-            funcs = []
-            if time.second != self.time.second:
-                for i in self.events:
-                    if i["type"] in ["s", "seconds"]:
-                        funcs.append(i['func'](time))
-        
-            if time.minute != self.time.minute:
-                for i in self.events:
-                    if i["type"] in ["m", "minutes"]:
-                        funcs.append(i['func'](time))
-        
-            if time.hour != self.time.hour:
-                for i in self.events:
-                    if i["type"] in ["h", "hours"]:
-                        funcs.append(i['func'](time))
-
+            for i in self.events:
+                if (i['type'] in ["s", "seconds"]) and (time.second != self.time.second):
+                        await self.loop.run_in_executor(
+                            None,
+                            func=lambda: self.loop.create_task(i['func'](time))
+                        )
+                elif (i['type'] in ["m", "minutes"]) and (time.minute != self.time.minute):
+                        await self.loop.run_in_executor(
+                            None,
+                            func=lambda: self.loop.create_task(i['func'](time))
+                        )
+                elif (i['type'] in ["h", "hours"]) and (time.hour != self.time.hour):
+                        await self.loop.run_in_executor(
+                            None,
+                            func=lambda: self.loop.create_task(i['func'](time))
+                        )
             self.time = time
-            await self.loop.create_task(self.__run(funcs))
 
-    async def __run(self, funcs):
-        await asyncio.gather(*funcs)
-
-    def start(self):
-        self.loop.run_until_complete(self.process_event())
+    def run_forever(self):
+        self.loop.create_task(self.process_event())
+        self.loop.run_forever()
 
 events = AsyncEvents()
 
@@ -64,4 +62,4 @@ async def on_time(time: datetime):
 async def on_time2(time: datetime):
     print(time, "minute changed")
 
-events.start()
+events.run_forever()
