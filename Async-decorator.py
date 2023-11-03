@@ -32,25 +32,40 @@ class AsyncEvents:
             time = datetime.now()
             for i in self.events:
                 if (i['type'] in ["ms", "microseconds"]) and (time.microsecond != self.time.microsecond):
-                        await self.loop.run_in_executor(
-                            None,
-                            func=lambda: self.loop.create_task(i['func'](time))
-                        )
+                        try:
+                            await self.loop.run_in_executor(
+                                None,
+                                func=lambda: self.loop.create_task(i['func'](time))
+                            )
+                        except:
+                            pass
+
                 elif (i['type'] in ["s", "seconds"]) and (time.second != self.time.second):
-                        await self.loop.run_in_executor(
-                            None,
-                            func=lambda: self.loop.create_task(i['func'](time))
-                        )
+                        try:
+                            await self.loop.run_in_executor(
+                                None,
+                                func=lambda: self.loop.create_task(i['func'](time))
+                            )
+                        except:
+                            pass
                 elif (i['type'] in ["m", "minutes"]) and (time.minute != self.time.minute):
-                        await self.loop.run_in_executor(
-                            None,
-                            func=lambda: self.loop.create_task(i['func'](time))
-                        )
+                        try:
+                            await self.loop.run_in_executor(
+                                None,
+                                func=lambda: self.loop.create_task(i['func'](time))
+                            )
+                        except:
+                            pass
+
                 elif (i['type'] in ["h", "hours"]) and (time.hour != self.time.hour):
-                        await self.loop.run_in_executor(
-                            None,
-                            func=lambda: self.loop.create_task(i['func'](time))
-                        )
+                        try:
+                            await self.loop.run_in_executor(
+                                None,
+                                func=lambda: self.loop.create_task(i['func'](time))
+                            )
+                        except:
+                            pass
+            
             self.time = time
 
     def run_forever(self):
@@ -67,8 +82,8 @@ async def on_time(time: datetime):
 async def on_time2(time: datetime):
     print(time, "minute changed")
 
-# @events.on_time_changed(change_type="microseconds")
-# async def on_time3(time: datetime):
-#     print(time, "microsecond changed")
+@events.on_time_changed(change_type="seconds")
+def on_time3(time: datetime):
+    print(time)
 
 events.run_forever()
