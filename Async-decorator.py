@@ -31,7 +31,12 @@ class AsyncEvents:
         while True:
             time = datetime.now()
             for i in self.events:
-                if (i['type'] in ["s", "seconds"]) and (time.second != self.time.second):
+                if (i['type'] in ["ms", "microseconds"]) and (time.microsecond != self.time.microsecond):
+                        await self.loop.run_in_executor(
+                            None,
+                            func=lambda: self.loop.create_task(i['func'](time))
+                        )
+                elif (i['type'] in ["s", "seconds"]) and (time.second != self.time.second):
                         await self.loop.run_in_executor(
                             None,
                             func=lambda: self.loop.create_task(i['func'](time))
@@ -61,5 +66,9 @@ async def on_time(time: datetime):
 @events.on_time_changed(change_type="minutes")
 async def on_time2(time: datetime):
     print(time, "minute changed")
+
+# @events.on_time_changed(change_type="microseconds")
+# async def on_time3(time: datetime):
+#     print(time, "microsecond changed")
 
 events.run_forever()
