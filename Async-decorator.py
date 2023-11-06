@@ -37,7 +37,7 @@ class AsyncEvents:
                                 None,
                                 func=lambda: self.loop.create_task(i['func'](time))
                             )
-                        except:
+                        except TypeError:
                             pass
 
                 elif (i['type'] in ["s", "seconds"]) and (time.second != self.time.second):
@@ -46,15 +46,16 @@ class AsyncEvents:
                                 None,
                                 func=lambda: self.loop.create_task(i['func'](time))
                             )
-                        except:
+                        except TypeError:
                             pass
+                            
                 elif (i['type'] in ["m", "minutes"]) and (time.minute != self.time.minute):
                         try:
                             await self.loop.run_in_executor(
                                 None,
                                 func=lambda: self.loop.create_task(i['func'](time))
                             )
-                        except:
+                        except TypeError:
                             pass
 
                 elif (i['type'] in ["h", "hours"]) and (time.hour != self.time.hour):
@@ -63,7 +64,7 @@ class AsyncEvents:
                                 None,
                                 func=lambda: self.loop.create_task(i['func'](time))
                             )
-                        except:
+                        except TypeError:
                             pass
             
             self.time = time
