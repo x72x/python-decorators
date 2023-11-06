@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Callable
+from threading import Thread
 
 import asyncio
 import functools
@@ -32,40 +33,40 @@ class AsyncEvents:
             time = datetime.now()
             for i in self.events:
                 if (i['type'] in ["ms", "microseconds"]) and (time.microsecond != self.time.microsecond):
-                        try:
+                        if asyncio.iscoroutinefunction(i['func']):
                             await self.loop.run_in_executor(
                                 None,
                                 func=lambda: self.loop.create_task(i['func'](time))
                             )
-                        except TypeError:
-                            pass
+                        else:
+                            Thread(target=i['func'], args=(time,)).start()
 
                 elif (i['type'] in ["s", "seconds"]) and (time.second != self.time.second):
-                        try:
+                        if asyncio.iscoroutinefunction(i['func']):
                             await self.loop.run_in_executor(
                                 None,
                                 func=lambda: self.loop.create_task(i['func'](time))
                             )
-                        except TypeError:
-                            pass
+                        else:
+                            Thread(target=i['func'], args=(time,)).start()
                             
                 elif (i['type'] in ["m", "minutes"]) and (time.minute != self.time.minute):
-                        try:
+                        if asyncio.iscoroutinefunction(i['func']):
                             await self.loop.run_in_executor(
                                 None,
                                 func=lambda: self.loop.create_task(i['func'](time))
                             )
-                        except TypeError:
-                            pass
+                        else:
+                            Thread(target=i['func'], args=(time,)).start()
 
                 elif (i['type'] in ["h", "hours"]) and (time.hour != self.time.hour):
-                        try:
+                        if asyncio.iscoroutinefunction(i['func']):
                             await self.loop.run_in_executor(
                                 None,
                                 func=lambda: self.loop.create_task(i['func'](time))
                             )
-                        except TypeError:
-                            pass
+                        else:
+                            Thread(target=i['func'], args=(time,)).start()
             
             self.time = time
 
