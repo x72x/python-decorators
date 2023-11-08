@@ -3,7 +3,6 @@ from typing import Callable
 from threading import Thread
 
 import asyncio
-import functools
 
 class AsyncEvents:
     def __init__(self) -> None:
@@ -20,11 +19,6 @@ class AsyncEvents:
     def on_time_changed(self, change_type: str = "seconds") -> Callable:
         def decorator(func: Callable) -> Callable:
             self.events.append({"func": func, "type": change_type})
-            @functools.wraps(func)
-            async def wrapped(*args):
-                return await func(*args)
-            
-            return wrapped
 
         return decorator
     
